@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Add Student</title>
+
+<style>
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #4e73df, #1cc850);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    text-align: center;
+    color: white;
+}
+
+.container {
+    padding: 40px 20px;
+}
+
+form {
+    background: white;
+    color: black;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 400px;
+    margin: auto;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin: 8px 0;
+}
+
+button {
+    padding: 10px;
+    background-color: #2e59d9;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+}
+
+button:hover {
+    background-color: #224abe;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Add Student</h1>
+
+    <form id="studentForm">
+        <input type="text" id="id" placeholder="StudentID" required>
+        <input type="text" id="name" placeholder="Name" required>
+        <input type="text" id="surname" placeholder="Surname" required>
+        <input type="date" id="birth" required>
+        <input type="text" id="address" placeholder="Address" required>
+        <input type="text" id="phone" placeholder="Telephone Number" required>
+        <button type="submit">Save Student</button>
+    </form>
+</div>
+
+<script>
+document.getElementById("studentForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    let students = JSON.parse(localStorage.getItem("students")) || [];
+
+    let newStudent = {
+        id: document.getElementById("id").value,
+        name: document.getElementById("name").value,
+        surname: document.getElementById("surname").value,
+        birth: document.getElementById("birth").value,
+        address: document.getElementById("address").value,
+        phone: document.getElementById("phone").value
+    };
+
+    students.push(newStudent);
+
+    localStorage.setItem("students", JSON.stringify(students));
+
+    window.location.href = "SearchingForRecords.html";
+});
+</script>
+
+</body>
+</html>
