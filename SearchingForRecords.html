@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Student Database</title>
+
+<style>
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #4e73df, #1cc850);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    text-align: center;
+    color: white;
+}
+
+.container {
+    padding: 40px 20px;
+}
+
+button {
+    padding: 10px 15px;
+    background-color: #2e59d9;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 5px;
+}
+
+button:hover {
+    background-color: #224abe;
+}
+
+input {
+    padding: 10px;
+    width: 250px;
+    border-radius: 5px;
+    border: none;
+}
+
+table {
+    margin: 20px auto;
+    border-collapse: collapse;
+    width: 95%;
+    max-width: 1100px;
+    background: white;
+    color: black;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #4e73df;
+    color: white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Student Database</h1>
+
+    <button onclick="goToAdd()">Add Student</button>
+
+    <div style="margin-top:20px;">
+        <input type="text" id="searchInput" placeholder="Search students...">
+        <button onclick="searchTable()">Search</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>StudentID</th>
+                <th>Name</th>
+                <th>Surname</th>
+                <th>Birth Date</th>
+                <th>Address</th>
+                <th>Telephone Number</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+    </table>
+</div>
+
+<script>
+function goToAdd() {
+    window.location.href = "AddingRecords.html";
+}
+
+function loadStudents() {
+    let students = JSON.parse(localStorage.getItem("students"));
+
+    if (!students) {
+        students = [];
+        localStorage.setItem("students", JSON.stringify(students));
+    }
+
+    let tableBody = document.getElementById("tableBody");
+    tableBody.innerHTML = "";
+
+    students.forEach(function(student) {
+        let row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${student.id}</td>
+            <td>${student.name}</td>
+            <td>${student.surname}</td>
+            <td>${student.birth}</td>
+            <td>${student.address}</td>
+            <td>${student.phone}</td>
+        `;
+
+        tableBody.appendChild(row);
+    });
+}
+
+function searchTable() {
+    let input = document.getElementById("searchInput").value.toLowerCase();
+    let rows = document.querySelectorAll("#tableBody tr");
+
+    rows.forEach(function(row) {
+        let text = row.textContent.toLowerCase();
+        row.style.display = text.includes(input) ? "" : "none";
+    });
+}
+
+window.onload = loadStudents;
+</script>
+
+</body>
+</html>
