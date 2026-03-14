@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>User Creator</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #4e73df, #1cc850);
+}
+
+.container {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    width: 320px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+h2 {
+    margin-top: 0;
+}
+
+input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 8px;
+    margin: 6px 0 12px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.admin-options {
+    margin-bottom: 15px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background: #4e73df;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #3a5ccc;
+}
+
+.user-list {
+    margin-top: 15px;
+    font-size: 14px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Add New User</h2>
+
+    <label>Username</label>
+    <input type="text" id="username" placeholder="Enter username">
+
+    <label>Password</label>
+    <input type="password" id="password" placeholder="Enter password">
+
+    <label>Admin?</label>
+    <div class="admin-options">
+        <label>
+            <input type="radio" name="admin" value="yes"> Yes
+        </label>
+        <label style="margin-left:15px;">
+            <input type="radio" name="admin" value="no" checked> No
+        </label>
+    </div>
+
+    <button onclick="addUser()">Create User</button>
+
+    <div class="user-list" id="userList"></div>
+</div>
+
+<script>
+let users = [];
+
+function addUser() {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+    const admin = document.querySelector('input[name="admin"]:checked').value === "yes";
+
+    if (!username || !password) {
+        alert("Please enter username and password.");
+        return;
+    }
+
+    const user = {
+        username: username,
+        password: password,
+        admin: admin
+    };
+
+    users.push(user);
+    displayUsers();
+
+    document.getElementById("username").value = "";
+    document.getElementById("password").value = "";
+    document.querySelector('input[value="no"]').checked = true;
+}
+
+function displayUsers() {
+    const list = document.getElementById("userList");
+    list.innerHTML = "<strong>Users:</strong><br>";
+
+    users.forEach((u, i) => {
+        list.innerHTML += `${i + 1}. ${u.username} (${u.admin ? "Admin" : "User"})<br>`;
+    });
+}
+</script>
+
+</body>
+</html>
