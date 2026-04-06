@@ -3,15 +3,13 @@ session_start();
 require_once "includes/dbh.inc.php";
 
 $showAdminLink = false;
-
-if (isset($_SESSION['currentUserID'])) {
-    $stmt = $pdo->prepare("SELECT admin FROM users WHERE userID = :id");
-    $stmt->execute(['id' => $_SESSION['currentUserID']]);
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($row && $row['admin'] == 1) {
+if (isset($_SESSION['currentUseradmin'])) {
+    if ($_SESSION['currentUseradmin'] == 1) {
         $showAdminLink = true;
     }
+}
+else {
+    header('Location: /login.php');
 }
 ?>
 
@@ -158,8 +156,12 @@ if (isset($_SESSION['currentUserID'])) {
             $prodPrice = $_POST["prodPrice"];
             $prodStock = $_POST["prodStock"];
             $released = isset($_POST["released"]) ? 1 : 0;
-
-            $stmt = $pdo->query("INSERT INTO products (prodName, prodPrice, prodStock, released) VALUES ('$prodName', '$prodPrice', '$prodStock', '$released')");
+            
+            $query = "INSERT INTO products (prodName, prodPrice, prodStock, released) VALUES (?, ?, ?, ?);";
+            $stmt = $pdo->prepare($query);
+            $stmt->execute([$prodName, $prodPrice, $prodStock, $released]);
+            
+            //$stmt = $pdo->query("INSERT INTO products (prodName, prodPrice, prodStock, released) VALUES ('$prodName', '$prodPrice', '$prodStock', '$released')");
             echo "<p>Product record created!</p>";
         }
         ?>

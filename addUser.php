@@ -3,15 +3,13 @@ session_start();
 require_once "includes/dbh.inc.php";
 
 $showAdminLink = false;
-
-if (isset($_SESSION['currentUserID'])) {
-    $stmt = $pdo->prepare("SELECT admin FROM users WHERE userID = :id");
-    $stmt->execute(['id' => $_SESSION['currentUserID']]);
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($row && $row['admin'] == 1) {
+if (isset($_SESSION['currentUseradmin'])) {
+    if ($_SESSION['currentUseradmin'] == 1) {
         $showAdminLink = true;
     }
+}
+else {
+    header('Location: /login.php');
 }
 ?>
 
@@ -162,7 +160,11 @@ if (isset($_SESSION['currentUserID'])) {
             $pwd = $_POST["pwd"];
             $admin = isset($_POST["admin"]) ? 1 : 0;
 
-            $stmt = $pdo->query("INSERT INTO users (username, pwd, admin) VALUES ('$username', '$pwd', '$admin')");
+            $query = "INSERT INTO users (username, pwd, admin) VALUES (?, ?, ?);";
+            $stmt = $pdo->prepare($query);
+            $stmt->execute([$username, $pwd, $admin]);
+            
+            //$stmt = $pdo->query("INSERT INTO users (username, pwd, admin) VALUES ('$username', '$pwd', '$admin')");
             echo "<p>User record created!</p>";
         }
         ?>

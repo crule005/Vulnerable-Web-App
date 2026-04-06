@@ -3,7 +3,6 @@ session_start();
 require_once "includes/dbh.inc.php";
 
 $showAdminLink = false;
-
 if (isset($_SESSION['currentUseradmin'])) {
     if ($_SESSION['currentUseradmin'] == 1) {
         $showAdminLink = true;
@@ -180,7 +179,11 @@ else {
                 if (isset($_POST["searchInput"])) {
                     $searchInput = $_POST["searchInput"];
                     try {
-                        $stmt = $pdo->query("SELECT * FROM products WHERE prodName LIKE '$searchInput'");
+
+                        $query = "SELECT * FROM products WHERE prodName LIKE ?;";
+                        $stmt = $pdo->prepare($query);
+                        $stmt->execute([$searchInput]);
+                        //$stmt = $pdo->query("SELECT * FROM products WHERE prodName LIKE '$searchInput'");
                         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         echo "<p>Table queried</p>";
                         if (empty($results)) {

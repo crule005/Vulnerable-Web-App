@@ -3,15 +3,13 @@ session_start();
 require_once "includes/dbh.inc.php";
 
 $showAdminLink = false;
-
-if (isset($_SESSION['currentUserID'])) {
-    $stmt = $pdo->prepare("SELECT admin FROM users WHERE userID = :id");
-    $stmt->execute(['id' => $_SESSION['currentUserID']]);
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($row && $row['admin'] == 1) {
+if (isset($_SESSION['currentUseradmin'])) {
+    if ($_SESSION['currentUseradmin'] == 1) {
         $showAdminLink = true;
     }
+}
+else {
+    header('Location: /login.php');
 }
 ?>
 <!DOCTYPE html>
@@ -181,7 +179,10 @@ if (isset($_SESSION['currentUserID'])) {
                 if (isset($_POST["searchInput"])) {
                     $searchInput = $_POST["searchInput"];
                     try {
-                        $stmt = $pdo->query("SELECT * FROM users WHERE username LIKE '$searchInput'");
+                        $query = "SELECT * FROM users WHERE username LIKE ?;";
+                        $stmt = $pdo->prepare($query);
+                        $stmt->execute([$searchInput]);
+                        //$stmt = $pdo->query("SELECT * FROM users WHERE username LIKE '$searchInput'");
                         $searchResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         echo "<p>Table queried</p>";
                         if (empty($searchResults)) {
