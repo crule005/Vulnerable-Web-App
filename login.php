@@ -1,6 +1,66 @@
-<?php 
-    session_start();
-    require_once "includes/dbh.inc.php";
+<?php
+session_start();
+require_once "includes/dbh.inc.php";
+
+$lockTime = 60;
+$maxAttempts = 3;
+
+/* STEP 1: reset variables */
+if (!isset($_SESSION['failed_attempts'])) {
+    $_SESSION['failed_attempts'] = 0;
+}
+
+if (!isset($_SESSION['lock_until'])) {
+    $_SESSION['lock_until'] = 0;
+}
+
+/* STEP 2: lock check */
+if (time() < $_SESSION['lock_until']) {
+    $remaining = $_SESSION['lock_until'] - time();
+    die("Too many failed attempts. Try again in $remaining seconds.");
+}
+
+/* STEP 3: LOGIN PROCESS (ONLY runs on submit) */
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $username = $_POST['username'];
+    $pwd = $_POST['pwd'];
+
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE username = :username AND pwd = :pwd");
+    $stmt->execute([
+        'username' => $username,
+        'pwd' => $pwd
+    ]);
+
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($user) {
+
+        // SUCCESS → reset everything
+        $_SESSION['failed_attempts'] = 0;
+        $_SESSION['lock_until'] = 0;
+
+        $_SESSION['currentUserID'] = $user['userID'];
+        $_SESSION['currentUseradmin'] = $user['admin'];
+
+        header("Location: searchProducts.php");
+        exit();
+
+    } else {
+
+        // FAIL → increase counter
+        $_SESSION['failed_attempts']++;
+
+        if ($_SESSION['failed_attempts'] >= $maxAttempts) {
+            $_SESSION['lock_until'] = time() + $lockTime;
+            $_SESSION['failed_attempts'] = 0;
+            die("Too many failed attempts. Locked for 1 minute.");
+        }
+
+        // optional message
+        $error = "Login failed. " . ($maxAttempts - $_SESSION['failed_attempts']) . " attempt(s) remaining.";
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -93,6 +153,10 @@
     <body>
         <div class="login-container">
             <h2>Login</h2>
+			
+			<?php if (!empty($error)): ?>
+				<p class="error-message"><?php echo $error; ?></p>
+			<?php endif; ?>
 
             <form id="loginForm" method="POST" action="">
                 <div class="input-group">
@@ -108,27 +172,6 @@
             </form>
         </div>
         
-        <?php
-            if (isset($_POST["username"])) {
-                $username = $_POST["username"];
-                $pwd = $_POST["pwd"];
-                try {
-                    $stmt = $pdo->query("SELECT * FROM users WHERE username = '$username' && pwd = '$pwd'");
-                    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                    echo "<p>Table queried</p>";
-                    if (!empty($results)) {
-                        $_SESSION["currentUserID"] = $results[0]["userID"];
-                        $_SESSION["currentUseradmin"] = $results[0]["admin"];
-                        header("Location: ./testSearchProducts.php");
-                        //var_dump($results);
-                        //var_dump($_SESSION);
-                    } else {
-                        echo "<p>There are no users with those details in the database! </p>";
-                    }
-                } catch (Exception $e) {
-                    echo "<p>Error: " . $e->getMessage() . "</p>";
-                }
-            }
-        ?>
+        
     </body>
 </html>
