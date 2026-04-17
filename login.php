@@ -5,7 +5,6 @@ require_once "includes/dbh.inc.php";
 $lockTime = 60;
 $maxAttempts = 3;
 
-/* STEP 1: reset variables */
 if (!isset($_SESSION['failed_attempts'])) {
     $_SESSION['failed_attempts'] = 0;
 }
@@ -14,13 +13,11 @@ if (!isset($_SESSION['lock_until'])) {
     $_SESSION['lock_until'] = 0;
 }
 
-/* STEP 2: lock check */
 if (time() < $_SESSION['lock_until']) {
     $remaining = $_SESSION['lock_until'] - time();
     die("Too many failed attempts. Try again in $remaining seconds.");
 }
 
-/* STEP 3: LOGIN PROCESS (ONLY runs on submit) */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $username = $_POST['username'];
@@ -36,7 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($user) {
 
-        // SUCCESS → reset everything
         $_SESSION['failed_attempts'] = 0;
         $_SESSION['lock_until'] = 0;
 
@@ -48,7 +44,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } else {
 
-        // FAIL → increase counter
         $_SESSION['failed_attempts']++;
 
         if ($_SESSION['failed_attempts'] >= $maxAttempts) {
@@ -57,7 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             die("Too many failed attempts. Locked for 1 minute.");
         }
 
-        // optional message
         $error = "Login failed. " . ($maxAttempts - $_SESSION['failed_attempts']) . " attempt(s) remaining.";
     }
 }
